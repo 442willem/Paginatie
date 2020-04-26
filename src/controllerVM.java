@@ -26,15 +26,12 @@ public class controllerVM {
 				String button = ((JRadioButton) e.getSource()).getActionCommand();
 				if(button.equals("30_3")) {
 					model.setFileName("Instructions_30_3.xml");
-					System.out.println(model.getFileName());
 					reset();
 				}else if(button.equals("20000_4")) {
 					model.setFileName("Instructions_20000_4.xml"); 
-					System.out.println(model.getFileName());
 					reset();
 				}else if(button.equals("20000_20")) {
 					model.setFileName("Instructions_20000_20.xml");
-					System.out.println(model.getFileName());
 					reset();
 				}
 			}

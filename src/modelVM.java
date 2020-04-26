@@ -35,7 +35,7 @@ public class modelVM {
         return this.fileName;
     }
     
-    public ArrayList leesXML(String bestand){
+    public List<Instructie> leesXML(String bestand){
         try {
             File file = new File(bestand);
             instructies =  new ArrayList<Instructie>();
@@ -54,7 +54,7 @@ public class modelVM {
                 instructies.add(instruction);
             }
             System.out.println("loadXML: ingelezen");
-            return (ArrayList) instructies;
+            return instructies;
         }
         catch(Exception e) {
             System.out.println("loadXML: An error occured.");
