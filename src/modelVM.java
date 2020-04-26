@@ -71,7 +71,7 @@ public class modelVM {
                 	paginaOffset = null;
                     huidigProces = new Proces(currentInstruction.getId());
                     processen.add(huidigProces);
-                    ram.voegToe(huidigProces, timer);
+                    ram.voegToe(huidigProces);
                     System.out.println(currentInstruction.getId()+" start");
                     break;
                 case "Write":

@@ -344,8 +344,8 @@ public class viewVM extends JFrame {
 		for(EntryPT pte: pageTable){
 
 			rowData[0] = page;
-			rowData[1] = pte.getPresentBit();
-			rowData[2] = pte.getModifyBit();
+			rowData[1] = pte.isPresent();
+			rowData[2] = pte.isModified();
 			rowData[3] = pte.getLastAccessTime();
 			rowData[4] = pte.getFrameNummer();
 
@@ -361,13 +361,13 @@ public class viewVM extends JFrame {
 
 		Object rowData[] = new Object[3];
 		for(int i=0;i<frames.length;i++){
+			if(frames[i]!=null) {
+				rowData[0] = i;
+				rowData[1] = frames[i].getId();
+				rowData[2] = frames[i].getPaginaNummer();
 
-			rowData[0] = i;
-			rowData[1] = frames[i].getId();
-			rowData[2] = frames[i].getPaginaNummer();
-
-			tableModel.addRow(rowData);                
-
+				tableModel.addRow(rowData);                
+			}
 		}
 	}
 	public void updateProcesTable(ArrayList<Proces> processList) {

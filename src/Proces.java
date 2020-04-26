@@ -1,13 +1,13 @@
 import java.util.ArrayList;
 
 public class Proces {
+	ArrayList<Pagina> pageList = new ArrayList<Pagina>();
+	ArrayList <EntryPT> pageTable = new ArrayList<>();
+	
 	private int id;
 	private int lastAccessTime;
 	private int readCount;
 	private int writeCount;
-
-	ArrayList<Pagina> pageList = new ArrayList<Pagina>();
-	ArrayList <EntryPT> pageTable = new ArrayList<>();
 
 	public Proces(int k) {
 		this.id = k;
@@ -41,30 +41,30 @@ public class Proces {
 		return lastAccessTime;
 	}
 
-	public void setLastAccessTime(int lastAccessTime) {
-		this.lastAccessTime = lastAccessTime;
+	public void setLastAccessTime(int l) {
+		this.lastAccessTime = l;
 	}
 
 	public int getReadCount() {
 		return readCount;
 	}
 
-	public void setReadCount(int readCount) {
-		this.readCount = readCount;
+	public void setReadCount(int r) {
+		this.readCount = r;
 	}
 
 	public int getWriteCount() {
 		return writeCount;
 	}
 
-	public void setWriteCount(int writeCount) {
-		this.writeCount = writeCount;
+	public void setWriteCount(int w) {
+		this.writeCount = w;
 	}
 
 	public int getAantalPaginas() {
 		int aantalPaginas = 0;
 		for(EntryPT pte : pageTable) {
-			if(pte.getPresentBit()) {
+			if(pte.isPresent()) {
 				aantalPaginas++;
 			}
 		}
@@ -73,46 +73,46 @@ public class Proces {
 
 	 public Pagina vindPagina() {
 		 for(int i=0; i<pageTable.size(); i++) {
-			 if(!pageTable.get(i).getPresentBit()) {
+			 if(!pageTable.get(i).isPresent()) {
 				 return pageList.get(i);
 			 }
 		 }
 		 return null;
 	 }
-	 
-	 public boolean heeftPagina(int[] paginaOffset) {
-		int pagina = paginaOffset[0];
-		return pageTable.get(pagina).getPresentBit();
-	 }
 
 
-	 public int getLRUFrameNumber() {
+	 public int getLRUFrameNummer() {
 		 EntryPT pte = new EntryPT();
 		 for(EntryPT tijdelijk : pageTable) {
-			 if(tijdelijk.getPresentBit() && tijdelijk.getLastAccessTime() < pte.getLastAccessTime()) {
+			 if(tijdelijk.isPresent() && tijdelijk.getLastAccessTime() < pte.getLastAccessTime()) {
 				 pte = tijdelijk;
 			 }
 		 }
 		 return pte.getFrameNummer();
 	 }
 
-	 public Pagina getLRUPage() {
+	 public Pagina getLRUPagina() {
 		 int index = -1;
 		 int min = Integer.MAX_VALUE;
 		 for(int i=0; i<pageTable.size(); i++) {
-			 if(pageTable.get(i).getPresentBit() && pageTable.get(i).getLastAccessTime() < min) {
+			 if(pageTable.get(i).isPresent() && pageTable.get(i).getLastAccessTime() < min) {
 				 min = pageTable.get(i).getLastAccessTime();
 				 index = i;
 			 }
 		 }
+		 if(index==-1)return pageList.get(0);
 		 return pageList.get(index);
 	 }
 
-	 public void updatePageTable(int paginaNummer, int frameNummer, boolean presentBit, boolean modifyBit) {
-		 EntryPT pte = pageTable.get(paginaNummer);
-		 pte.setFrameNummer(frameNummer);
-		 pte.setPresentBit(presentBit);
-		 pte.setModifyBit(modifyBit);
+	 public void updatePageTable(int pagina, int f, boolean p , boolean m) {
+		 EntryPT pte = pageTable.get(pagina);
+		 pte.setPresentBit(p);
+		 pte.setModifyBit(m);
+		 pte.setFrameNummer(f);
+	 }
+	  
+	 public boolean heeftPagina(int[] paginaOffset) {
+		return pageTable.get(paginaOffset[0]).isPresent();
 	 }
 
 }

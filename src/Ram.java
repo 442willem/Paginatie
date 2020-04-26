@@ -10,7 +10,7 @@ public class Ram {
 		this.frameCount = frameCount;
 	}
 
-	public void voegToe(Proces proces, int timer) {
+	public void voegToe(Proces proces){
 		if(processen.size() >= 4) {
 			int min = Integer.MAX_VALUE;
 			int index = -1;
@@ -27,22 +27,21 @@ public class Ram {
 	}
 
 	public void verwisselPagina(int frame, Pagina nieuw) {
-		Pagina oldPage = frameArray[frame];
-		if(oldPage != null) {
-			Proces oldPageProcess = findProcesByPage(oldPage);
-			// Modify bit gets set to false if it was true
-			oldPageProcess.updatePageTable(oldPage.getPaginaNummer(), 0, false, false);
-			oldPageProcess.increaseWriteToRAM();
+		Pagina oud = frameArray[frame];
+		if(oud != null) {
+			Proces oudProces = vindProces(oud);
+			oudProces.updatePageTable(oud.getPaginaNummer(), 0, false, false);
+			oudProces.increaseWriteToRAM();
 		}
-		Proces newPageProcess = findProcesByPage(nieuw);
-		newPageProcess.updatePageTable(nieuw.getPaginaNummer(), frame, true, false);
-		newPageProcess.read();
+		Proces nieuwProces = vindProces(nieuw);
+		nieuwProces.updatePageTable(nieuw.getPaginaNummer(), frame, true, false);
+		nieuwProces.read();
 		frameArray[frame] = nieuw;
 	}
 
-	public Proces findProcesByPage(Pagina page) {
+	public Proces vindProces(Pagina pagina) {
 		for(Proces p : processen) {
-			if(p.getId() == page.getId()) {
+			if(p.getId() == pagina.getId()) {
 				return p;
 			}
 		}
@@ -50,13 +49,11 @@ public class Ram {
 	}
 
 	public void setModifybitTrue(Proces proces, int[] paginaOffset) {
-		int page = paginaOffset[0];
-		proces.pageTable.get(page).setModifyBit(true);
+		proces.pageTable.get(paginaOffset[0]).setModifyBit(true);
 	}
 
-	private void setLastAccessTime(int time, Proces proces, int[]paginaOffset) {
-		int page = paginaOffset[0];
-		proces.pageTable.get(page).setLastAccessTime(time);
+	private void setLastAccessTime(int t, Proces proces, int[] paginaOffset) {
+		proces.pageTable.get(paginaOffset[0]).setLastAccessTime(t);
 	}  
 
 	public void verwijderProces(int id) {
@@ -67,7 +64,7 @@ public class Ram {
 			}
 		}
 		for(int i=0; i<frameArray.length; i++) {
-			if(frameArray[i].getId() == proces.getId()) {
+			if(frameArray[i]!=null&&frameArray[i].getId() == proces.getId()) {
 				verwijderPagina(frameArray[i]);
 			}
 		}
@@ -75,58 +72,49 @@ public class Ram {
 	}
 
 	public void verwijderPagina(Pagina page) {
-		Proces proces = findProcesByPage(page);
-		int frameNumber = proces.pageTable.get(page.getPaginaNummer()).getFrameNummer();
-		proces.updatePageTable(page.getPaginaNummer(), frameNumber, false, false);
-		frameArray[frameNumber] = null;
+		Proces proces = vindProces(page);
+		proces.updatePageTable(page.getPaginaNummer(), proces.pageTable.get(page.getPaginaNummer()).getFrameNummer(), false, false);
+		frameArray[proces.pageTable.get(page.getPaginaNummer()).getFrameNummer()] = null;
 	}
 
 	public void pasAan() {
-		if(processen.size() > 0) {
+		if(!processen.isEmpty()) {
 			int aantalFrames = frameCount/processen.size();
 			for(Proces p : processen) {
 				while (p.getAantalPaginas() != aantalFrames) {
 					if(p.getAantalPaginas() > aantalFrames) {
-						verwijderPagina(p.getLRUPage());
+						verwijderPagina(p.getLRUPagina());
 					}
 					else {
 						Pagina nieuw = p.vindPagina();
-						boolean volgende = false;
-						int emptyFrameIndex = 0;
-						while(!volgende) {
-							if(frameArray[emptyFrameIndex] == null) {
-								volgende = true;
-							}
-							else {
-								emptyFrameIndex++;
-							}
+						boolean hulp = true;
+						int index=0;
+						while(hulp) {
+							if(frameArray[index] != null)index++;
+							else hulp=false;
 						}
-						frameArray[emptyFrameIndex] = nieuw;
-						p.updatePageTable(nieuw.getPaginaNummer(), emptyFrameIndex, true, false);
+						frameArray[index] = nieuw;
+						p.updatePageTable(nieuw.getPaginaNummer(), index, true, false);
 					}
 				}
 			}
 		}
 	}
 
-	public int[] splitsAdres(int virtualAdres){
-		String binair = Integer.toString(virtualAdres,2);
-		int nullen = 16-binair.length();
-		StringBuilder binairAdress16= new StringBuilder();
-		for(int i = 0; i < nullen; i++){
-			binairAdress16.append("0");
+	public int[] splitsAdres(int adres){
+		String binair = Integer.toString(adres,2);
+		StringBuilder binairAdres= new StringBuilder(binair);
+		while(binairAdres.length()<16){
+			binairAdres.insert(0,"0");
 		}
-		binairAdress16.append(binair);
-		String binair16 = binairAdress16.toString();
-		String pageNr = binair16.substring(0,binair16.length()-12);
-		String offset = binair16.substring(binair16.length()-12);
+		String binairString = binairAdres.toString();
+		String pageNr = binairString.substring(0,binairString.length()-12);
+		String offset = binairString.substring(binairString.length()-12);
 		return new int [] {Integer.parseInt(pageNr,2),Integer.parseInt(offset,2)};   
 	}
 
 	public Proces isProcesInRam(int id){
-		for(Proces p: processen){
-			if(p.getId() == id) return p;
-		}
+		for(Proces p: processen)if(p.getId() == id) return p;
 		return null;
 	}
 
@@ -134,31 +122,30 @@ public class Ram {
 		Proces proc = isProcesInRam(pid);
 		if(proc == null){
 			proc = new Proces(pid);
-			voegToe(proc,time); 
+			voegToe(proc); 
 		}
 		if(proc.heeftPagina(pageNrAndOffset)){
 			setModifybitTrue(proc,  pageNrAndOffset);
 			setLastAccessTime(time, proc, pageNrAndOffset);
 		}else{
-			Pagina oldPage = proc.getLRUPage();
+			Pagina oldPage = proc.getLRUPagina();
 			int oldPageFrameNumber = proc.pageTable.get(oldPage.getPaginaNummer()).getFrameNummer();
 			verwisselPagina(oldPageFrameNumber, proc.pageList.get(pageNrAndOffset[0]));
 			proc.updatePageTable(proc.pageList.get(pageNrAndOffset[0]).getPaginaNummer(), oldPageFrameNumber, true, true);
 			proc.pageTable.get(pageNrAndOffset[0]).setLastAccessTime(time);
 		}
 		proc.setLastAccessTime(time);
-
 	}
 
 	public void read(int pid, int[] pageNrAndOffset, int time) {
 		Proces proc = isProcesInRam(pid);
 		if(proc == null){
-			voegToe(proc,time); 
+			voegToe(proc); 
 		}
 		if(proc.heeftPagina(pageNrAndOffset)){
 			setLastAccessTime(time, proc, pageNrAndOffset);
 		}else{
-			Pagina oldPage = proc.getLRUPage();
+			Pagina oldPage = proc.getLRUPagina();
 			int oldPageFrameNumber = proc.pageTable.get(oldPage.getPaginaNummer()).getFrameNummer();
 			verwisselPagina(oldPageFrameNumber, proc.pageList.get(pageNrAndOffset[0]));
 			proc.updatePageTable(proc.pageList.get(pageNrAndOffset[0]).getPaginaNummer(), oldPageFrameNumber, true, false);

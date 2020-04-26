@@ -12,28 +12,28 @@ public class EntryPT {
         this.presentBit = false;
     }
 
-    public boolean getPresentBit() {
+    public boolean isPresent() {
         return presentBit;
     }
 
-    public void setPresentBit(boolean presentBit) {
-        this.presentBit = presentBit;
+    public void setPresentBit(boolean b) {
+        this.presentBit = b;
     }
 
-    public boolean getModifyBit() {
+    public boolean isModified() {
         return modifyBit;
     }
 
-    public void setModifyBit(boolean modifyBit) {
-        this.modifyBit = modifyBit;
+    public void setModifyBit(boolean m) {
+        this.modifyBit = m;
     }
 
     public int getLastAccessTime() {
         return lastAccessTime;
     }
 
-    public void setLastAccessTime(int lastAccessTime) {
-        this.lastAccessTime = lastAccessTime;
+    public void setLastAccessTime(int l) {
+        this.lastAccessTime = l;
     }
 
     public int getFrameNummer() {
