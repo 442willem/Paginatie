@@ -293,8 +293,8 @@ public class viewVM extends JFrame {
 		btnAlleInstructies.addActionListener(allInstructionsListener);
 	}
 
-	public void addCancelListener(ActionListener cancelListener){
-		btnReset.addActionListener(cancelListener);
+	public void addResetListener(ActionListener resetListener){
+		btnReset.addActionListener(resetListener);
 	}
 
 	public void addRadioButton1Listener(ActionListener radioButtonListener){

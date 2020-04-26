@@ -11,11 +11,12 @@ import org.w3c.dom.NodeList;
 public class modelVM { 
 	public Ram ram;
     public int timer;
-    public List<Instructie> instructies;
     public int[] paginaOffset;
     public Proces huidigProces;
+    public List<Instructie> instructies;
+    
     public List<Proces> processen;
-    public String fileName = "Instructions_30_3.xml";
+    public String fileName= "Instructions_30_3.xml";
     
     
     public void init() {
@@ -41,7 +42,7 @@ public class modelVM {
             instructies =  new ArrayList<Instructie>();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document document = (Document) db.parse(file);
+            Document document = db.parse(file);
             document.getDocumentElement().normalize ();
             
             NodeList xmlList = document.getElementsByTagName("instruction");
@@ -53,11 +54,10 @@ public class modelVM {
                 Instructie instruction = new Instructie(processID, operation, address);
                 instructies.add(instruction);
             }
-            System.out.println("loadXML: ingelezen");
             return instructies;
         }
         catch(Exception e) {
-            System.out.println("loadXML: An error occured.");
+            System.out.println(e);
             return null;
         }
     }
@@ -106,9 +106,6 @@ public class modelVM {
         }
     }
     
-    /*
-    * Get the instruction that isn't executed yet
-    */
     public Instructie getCurrentInstruction() {
         if (timer < instructies.size()) {
             return instructies.get(timer);
@@ -116,12 +113,11 @@ public class modelVM {
         return null;
     }
     
-    public void cancel() {
+    public void reset() {
         init();
     }
 
-    public Proces getHuidigProces() {
-        
+    public Proces getHuidigProces() {    
         return huidigProces;
     }
 
@@ -143,8 +139,7 @@ public class modelVM {
     public ArrayList<Proces> getAllProces() {
         if(ram != null){
             return (ArrayList<Proces>) processen;
-        }
-        
+        }      
         return null;
     }
 
@@ -154,46 +149,37 @@ public class modelVM {
         int [] pnEnOffset = ram.splitsAdres(adress);
         int framenummer =0;
         for(Pagina p: ram.frameArray){
-            //check of pid en pn gelijk zijn aan die van de instructie
             if(p != null) {
                 if(p.getId() == pid){
                     if(p.getPaginaNummer() == pnEnOffset[0]){
                         return framenummer;
                     }
                 }
-            }
-            
-            framenummer++;
-            
+            }   
+            framenummer++;          
         }
         return -1;
     }
     
     public Integer getFysAdress(int framenummer, int offsetDec){
         if(framenummer >= 0) {
-            //dit wordt gedaan in het net uitgevoerde process
-            //int fysAdress; //is framenummer naar binair + offset naar binair 
             String offsetbin = Integer.toBinaryString(offsetDec);
             String frameBin = Integer.toBinaryString(framenummer);
-
             StringBuilder fysAdress = new StringBuilder();
-
             StringBuilder zeros = new StringBuilder();
             
-            int aantalZeros = 4-frameBin.length();// voor de adres
+            int aantalZeros = 4-frameBin.length();
             for(int i = 0; i < aantalZeros; i++){
                 zeros.append("0");
             }
             fysAdress = fysAdress.append(zeros).append(frameBin);
 
             zeros= zeros.delete(0, zeros.length());
-            aantalZeros = 12-offsetbin.length(); // voor offset
+            aantalZeros = 12-offsetbin.length(); 
             for(int i = 0; i < aantalZeros; i++){
                 zeros.append("0");
             }
             fysAdress = fysAdress.append(zeros).append(offsetbin);
-            
-
             String fys = fysAdress.toString();
             return Integer.parseInt(fys,2);
         }

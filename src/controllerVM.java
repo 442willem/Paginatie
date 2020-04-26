@@ -12,7 +12,7 @@ public class controllerVM {
 		this.model = model;
 		this.view.addOneInstructionListener(new EenPerEenListener());
 		this.view.addAllInstructionsListener(new AllemaalListener());
-		this.view.addCancelListener(new CancelListener());
+		this.view.addResetListener(new ResetListener());
 		this.view.addRadioButton1Listener(new FileSelectListener());
 		this.view.addRadioButton2Listener(new FileSelectListener());
 		this.view.addRadioButton3Listener(new FileSelectListener());
@@ -42,7 +42,7 @@ public class controllerVM {
 	}
 
 	public void reset() {
-		model.cancel();
+		model.reset();
 		view.initValues();	
 		view.resetProcesTable();
 		view.resetFrames();
@@ -79,7 +79,7 @@ public class controllerVM {
 	class AllemaalListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			try{
-				model.cancel();
+				model.reset();
 				Instructie executedInstruction = null;
 				for(int i=0; i<model.instructies.size(); i++) {
 					executedInstruction = model.performOneInstruction();
@@ -105,7 +105,7 @@ public class controllerVM {
 		}
 	}
 
-	class CancelListener implements ActionListener{
+	class ResetListener implements ActionListener{
 		public void actionPerformed(ActionEvent e) {
 			try{
 				reset();
