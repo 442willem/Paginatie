@@ -23,6 +23,7 @@ import com.jgoodies.forms.layout.RowSpec;
 import com.jgoodies.forms.layout.FormSpecs;
 
 public class viewVM extends JFrame {
+	private static final long serialVersionUID = 7952147223277602246L;
 
 	private JPanel contentPane;
 
