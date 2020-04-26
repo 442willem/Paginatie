@@ -39,22 +39,25 @@ public class modelVM {
     public List<Instructie> leesXML(String bestand){
         try {
             File file = new File(bestand);
-            instructies =  new ArrayList<Instructie>();
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
+            List<Instructie> tijdelijkeInstructies =  new ArrayList<Instructie>();
+           
+            DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = db.parse(file);
             document.getDocumentElement().normalize ();
             
             NodeList xmlList = document.getElementsByTagName("instruction");
+            
             for (int i=0; i<xmlList.getLength(); i++) {
                 Element element = (Element)xmlList.item(i);
+                
                 int processID = Integer.parseInt(element.getElementsByTagName("processID").item(0).getTextContent());
                 String operation = element.getElementsByTagName("operation").item(0).getTextContent();
                 int address = Integer.parseInt(element.getElementsByTagName("address").item(0).getTextContent());
+                
                 Instructie instruction = new Instructie(processID, operation, address);
-                instructies.add(instruction);
+                tijdelijkeInstructies.add(instruction);
             }
-            return instructies;
+            return tijdelijkeInstructies;
         }
         catch(Exception e) {
             System.out.println(e);
